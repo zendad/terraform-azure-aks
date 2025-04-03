@@ -56,8 +56,8 @@ variable "default_tags" {
 
 variable "auto_scaler_profile_balance_similar_node_groups" {
   description = "Detect similar node groups and balance the number of nodes between them"
-  type        = string
-  default     = ""
+  type        = bool
+  default     = false
 }
 
 variable "auto_scaler_profile_expander" {

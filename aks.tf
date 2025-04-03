@@ -1,7 +1,7 @@
 module "aks" {
-  source  = "Azure/aks/azurerm"
-  version = "9.4.1"
-
+  source                              = "Azure/aks/azurerm"
+  version                             = "9.4.1"
+  depends_on                          = [azurerm_resource_group.aks_rg]
   resource_group_name                 = azurerm_resource_group.aks_rg.name
   cluster_name                        = local.cluster_name
   location                            = var.location
@@ -23,6 +23,9 @@ module "aks" {
   auto_scaler_profile_expander                      = var.auto_scaler_profile_expander
   auto_scaler_profile_skip_nodes_with_local_storage = false
   auto_scaler_profile_skip_nodes_with_system_pods   = false
+
+  log_analytics_workspace_enabled      = true
+  cluster_log_analytics_workspace_name = local.cluster_name
 
   node_pools = {
     for key, pool in local.node_pools_with_subnets : key => {

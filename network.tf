@@ -1,4 +1,5 @@
 module "network" {
+  depends_on          = [azurerm_resource_group.aks_rg]
   source              = "Azure/network/azurerm"
   version             = "5.2.0"
   use_for_each        = true
