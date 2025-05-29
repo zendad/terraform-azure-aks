@@ -9,6 +9,14 @@ terraform {
       source  = "hashicorp/random"
       version = "3.3.2"
     }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 3.0.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.35.0"
+    }
   }
 
   required_version = ">= 1.7.0"
