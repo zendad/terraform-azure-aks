@@ -20,6 +20,7 @@ output "cluster_identity" {
 
 output "host" {
   value       = module.aks.admin_host
+  sensitive   = true
   description = "The `host` in the `azurerm_kubernetes_cluster`'s `kube_config` block. The Kubernetes cluster server host."
 }
 
@@ -75,25 +76,30 @@ output "oidc_issuer_url" {
 
 output "kube_admin_config_raw" {
   value       = module.aks.kube_admin_config_raw
+  sensitive   = true
   description = "The `azurerm_kubernetes_cluster`'s `kube_admin_config_raw` argument. Raw Kubernetes config for the admin account to be used by kubectl and other compatible tools. This is only available when Role Based Access Control with Azure Active Directory is enabled and local accounts enabled."
 }
 
 output "kube_config_raw" {
   value       = module.aks.kube_config_raw
+  sensitive   = true
   description = "The raw Kubernetes config for the cluster."
 }
 
 output "client_certificate" {
   value       = base64decode(module.aks.admin_client_certificate)
+  sensitive   = true
   description = "The `client_certificate` in the `azurerm_kubernetes_cluster`'s `kube_config` block."
 }
 
 output "client_key" {
   value       = base64decode(module.aks.admin_client_key)
+  sensitive   = true
   description = "The `client_key` in the `azurerm_kubernetes_cluster`'s `kube_config` block."
 }
 
 output "cluster_ca_certificate" {
   value       = base64decode(module.aks.admin_cluster_ca_certificate)
+  sensitive   = true
   description = "The `cluster_ca_certificate` in the `azurerm_kubernetes_cluster`'s `kube_config` block."
 }
