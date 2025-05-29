@@ -42,8 +42,13 @@ variable "node_pools" {
     enable_auto_scaling = bool
     min_count           = number
     max_count           = number
-    taints              = list(string)
-    labels              = map(string)
+    node_taints         = list(string)
+    os_disk_size_gb     = number
+    max_pods            = number
+    mode                = string
+    priority            = string
+    os_type             = string
+    node_labels         = map(string)
   }))
   default = {}
 }
@@ -88,8 +93,8 @@ variable "api_server_authorized_ip_ranges" {
   default     = []
 }
 
-variable "private_cluster_public_fqdn_enabled" {
-  description = "Enable public FQDN for private cluster"
-  type        = bool
-  default     = false
+variable "vault_name" {
+  description = "name for key vault"
+  type        = string
+  default     = "kv-cluster"
 }
