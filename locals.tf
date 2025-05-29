@@ -8,38 +8,38 @@ resource "random_string" "suffix" {
 # locals variables
 locals {
   azure_regions_shortname = {
-  "australiaeast"       = "aue"
-  "australiasoutheast"  = "aus"
-  "brazilsouth"         = "brs"
-  "canadacentral"       = "cac"
-  "canadaeast"          = "cae"
-  "centralindia"        = "cin"
-  "centralus"           = "cus"
-  "eastasia"            = "eas"
-  "eastus"              = "eus"
-  "eastus2"             = "eus2"
-  "francecentral"       = "frc"
-  "germanywestcentral"  = "gwc"
-  "japaneast"           = "jpe"
-  "japanwest"           = "jpw"
-  "koreacentral"        = "krc"
-  "northcentralus"      = "ncus"
-  "northeurope"         = "neu"
-  "norwayeast"          = "nwe"
-  "southafricanorth"    = "san"
-  "southcentralus"      = "scus"
-  "southindia"          = "sin"
-  "southeastasia"       = "sea"
-  "swedencentral"       = "sec"
-  "switzerlandnorth"    = "chn"  # Yes, "chn" is used even though it's odd
-  "uaenorth"            = "uan"
-  "uksouth"             = "uks"
-  "ukwest"              = "ukw"
-  "westeurope"          = "weu"
-  "westus"              = "wus"
-  "westus2"             = "wus2"
-  "westus3"             = "wus3"
-}
+    "australiaeast"      = "aue"
+    "australiasoutheast" = "aus"
+    "brazilsouth"        = "brs"
+    "canadacentral"      = "cac"
+    "canadaeast"         = "cae"
+    "centralindia"       = "cin"
+    "centralus"          = "cus"
+    "eastasia"           = "eas"
+    "eastus"             = "eus"
+    "eastus2"            = "eus2"
+    "francecentral"      = "frc"
+    "germanywestcentral" = "gwc"
+    "japaneast"          = "jpe"
+    "japanwest"          = "jpw"
+    "koreacentral"       = "krc"
+    "northcentralus"     = "ncus"
+    "northeurope"        = "neu"
+    "norwayeast"         = "nwe"
+    "southafricanorth"   = "san"
+    "southcentralus"     = "scus"
+    "southindia"         = "sin"
+    "southeastasia"      = "sea"
+    "swedencentral"      = "sec"
+    "switzerlandnorth"   = "chn" # Yes, "chn" is used even though it's odd
+    "uaenorth"           = "uan"
+    "uksouth"            = "uks"
+    "ukwest"             = "ukw"
+    "westeurope"         = "weu"
+    "westus"             = "wus"
+    "westus2"            = "wus2"
+    "westus3"            = "wus3"
+  }
 
   name_prefix  = "${var.environment}-${local.azure_regions_shortname[var.location]}"
   vnet_name    = "vnet-${local.name_prefix}"
@@ -113,5 +113,9 @@ locals {
       pod_subnet_id = local.pod_subnet_id_list[idx % length(local.pod_subnet_id_list)]
     })
   }
-
+  cluster_roles = [
+    "aks-cluster-admin",
+    "aks-cluster-cluster-operator",
+    "aks-cluster-cluster-viewer"
+  ]
 }

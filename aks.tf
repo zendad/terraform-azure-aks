@@ -1,9 +1,10 @@
 # aks module implementation
 module "aks" {
+
   source                                            = "Azure/aks/azurerm"
   version                                           = "10.0.1"
-  prefix                                            = "aks-${local.name_prefix}"
   depends_on                                        = [azurerm_resource_group.aks_rg]
+  prefix                                            = "aks-${local.name_prefix}"
   resource_group_name                               = azurerm_resource_group.aks_rg.name
   cluster_name                                      = local.cluster_name
   location                                          = var.location
@@ -29,10 +30,10 @@ module "aks" {
   log_analytics_workspace_enabled                   = false
   cluster_log_analytics_workspace_name              = local.cluster_name
   #disk_encryption_set_id                            = azurerm_disk_encryption_set.aks_nodes.id
-  image_cleaner_enabled                             = true
-  image_cleaner_interval_hours                      = 72
-  key_vault_secrets_provider_enabled                = true
-  kms_key_vault_key_id                              = azurerm_key_vault_key.aks.id
+  image_cleaner_enabled              = true
+  image_cleaner_interval_hours       = 72
+  key_vault_secrets_provider_enabled = true
+  kms_key_vault_key_id               = azurerm_key_vault_key.aks.id
 
   node_pools = {
     for key, pool in local.node_pools_with_subnets : key => {
