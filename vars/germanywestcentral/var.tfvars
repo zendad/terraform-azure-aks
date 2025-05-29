@@ -1,4 +1,4 @@
-subscription_id = "03956095-a7be-429d-98b2-0ec426116a10"
+subscription_id = ""
 location        = "germanywestcentral"
 environment     = "test"
 
