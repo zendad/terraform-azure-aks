@@ -114,8 +114,8 @@ locals {
     })
   }
   cluster_roles = [
-    "aks-cluster-admin",
-    "aks-cluster-cluster-operator",
-    "aks-cluster-cluster-viewer"
+    "aks-cluster-clusteradmin",
+    "aks-cluster-clusteroperator",
+    "aks-cluster-clusterviewer"
   ]
 }

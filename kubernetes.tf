@@ -2,7 +2,7 @@
 resource "kubernetes_manifest" "cluster_roles" {
   for_each = fileset("${path.module}/templates", "*.yaml")
 
-  manifest = yamldecode(file(each.value))
+  manifest = yamldecode(file("${path.module}/templates/${each.value}"))
 }
 
 resource "kubernetes_cluster_role_binding" "cluster_bindings" {
