@@ -21,7 +21,7 @@ resource "kubernetes_cluster_role_binding" "cluster_bindings" {
 
   subject {
     kind      = "Group"
-    name      = each.value.id
+    name      = trim(replace(each.value.id, "/groups/", ""), "/")
     api_group = "rbac.authorization.k8s.io"
   }
 }

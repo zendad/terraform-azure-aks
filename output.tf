@@ -103,3 +103,8 @@ output "cluster_ca_certificate" {
   sensitive   = true
   description = "The `cluster_ca_certificate` in the `azurerm_kubernetes_cluster`'s `kube_config` block."
 }
+
+output "cluster_vnet_id" {
+  value       = module.network.vnet_id
+  description = "AKS cluster vnet"
+}
