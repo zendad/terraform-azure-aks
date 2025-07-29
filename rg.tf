@@ -5,9 +5,9 @@ resource "azurerm_resource_group" "aks_rg" {
   tags     = var.default_tags
 }
 
-# vault resource group
-resource "azurerm_resource_group" "vault_rg" {
-  name     = "rg-kv-${local.name_prefix}"
+# tools resource group
+resource "azurerm_resource_group" "tools_rg" {
+  name     = "rg-tools-${local.name_prefix}"
   location = var.location
   tags     = var.default_tags
 }

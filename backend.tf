@@ -1,3 +1,4 @@
+/*
 terraform {
   backend "azurerm" {
     resource_group_name  = "rg-tfstate-test-gwc"
@@ -6,3 +7,4 @@ terraform {
     key                  = "aks/test/gmc/tf.tfstate"
   }
 }
+*/
