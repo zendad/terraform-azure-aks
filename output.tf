@@ -15,6 +15,7 @@ output "cluster_fqdn" {
 
 output "cluster_identity" {
   value       = module.aks.cluster_identity
+  sensitive   = true
   description = "The `azurerm_kubernetes_cluster`'s `identity` block."
 }
 
@@ -107,4 +108,12 @@ output "cluster_ca_certificate" {
 output "cluster_vnet_id" {
   value       = module.network.vnet_id
   description = "AKS cluster vnet"
+}
+
+
+output "aad_group_ids" {
+  value = {
+    for role in local.cluster_roles :
+    role => data.azuread_group.k8s_groups[role].object_id
+  }
 }

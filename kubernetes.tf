@@ -1,3 +1,4 @@
+/*
 # Cluster role binding
 resource "kubernetes_manifest" "cluster_roles" {
   for_each = fileset("${path.module}/templates", "*.yaml")
@@ -26,4 +27,4 @@ resource "kubernetes_cluster_role_binding" "cluster_bindings" {
   }
 }
 
-
+*/

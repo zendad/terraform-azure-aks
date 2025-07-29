@@ -41,81 +41,80 @@ locals {
     "westus3"            = "wus3"
   }
 
-  name_prefix  = "${var.environment}-${local.azure_regions_shortname[var.location]}"
-  vnet_name    = "vnet-${local.name_prefix}"
-  cluster_name = "aks-cluster-${local.name_prefix}"
+  name_prefix                  = "${var.environment}-${local.azure_regions_shortname[var.location]}"
+  vnet_name                    = "vnet-${local.name_prefix}"
+  cluster_name                 = "aks-cluster-${local.name_prefix}"
+  nodepool_resource_group_name = "rg-nodepool-${local.name_prefix}"
 
-  node_subnet_names    = [for i in range(1, 4) : "snet-node-${local.name_prefix}-${i}"]
-  pod_subnet_names     = [for i in range(1, 4) : "snet-pod-${local.name_prefix}-${i}"]
-  public_subnet_names  = [for i in range(1, 4) : "snet-public-${local.name_prefix}-${i}"]
-  private_subnet_names = [for i in range(1, 4) : "snet-private-${local.name_prefix}-${i}"]
-
-  # Workload subnets (/22)
-  node_subnet_cidrs = [
-    cidrsubnet(var.vnet_cidr, 6, 0),
-    cidrsubnet(var.vnet_cidr, 6, 1),
-    cidrsubnet(var.vnet_cidr, 6, 2)
+  # Private subnets (/22)
+  private_subnet_cidrs = [
+    cidrsubnet(var.vnet_cidr, 6, 0)
   ]
 
   # Pod subnets (/21)
   pod_subnet_cidrs = [
-    cidrsubnet(var.vnet_cidr, 5, 10),
-    cidrsubnet(var.vnet_cidr, 5, 11),
-    cidrsubnet(var.vnet_cidr, 5, 12)
+    cidrsubnet(var.vnet_cidr, 5, 1)
   ]
 
   # Public subnets (/24)
   public_subnet_cidrs = [
-    cidrsubnet(var.vnet_cidr, 8, 20),
-    cidrsubnet(var.vnet_cidr, 8, 21),
-    cidrsubnet(var.vnet_cidr, 8, 22)
+    cidrsubnet(var.vnet_cidr, 8, 100)
   ]
 
-  # Private subnets (/24)
-  private_subnet_cidrs = [
-    cidrsubnet(var.vnet_cidr, 8, 30),
-    cidrsubnet(var.vnet_cidr, 8, 31),
-    cidrsubnet(var.vnet_cidr, 8, 32)
-  ]
-
+  public_subnet_names  = [for idx, cidr in local.public_subnet_cidrs : "snet-public-${local.name_prefix}-${idx + 1}"]
+  private_subnet_names = [for idx, cidr in local.private_subnet_cidrs : "snet-private-${local.name_prefix}-${idx + 1}"]
+  pod_subnet_names     = [for idx, cidr in local.pod_subnet_cidrs : "snet-pod-${local.name_prefix}-${idx + 1}"]
   # Count each type
-  node_subnet_count    = length(local.node_subnet_names)
   pod_subnet_count     = length(local.pod_subnet_names)
   public_subnet_count  = length(local.public_subnet_names)
   private_subnet_count = length(local.private_subnet_names)
 
   # Split the flat list of subnet IDs from the module into slices
-  node_subnet_id_list = slice(module.network.vnet_subnets, 0, local.node_subnet_count)
-
-  pod_subnet_id_list = slice(
-    module.network.vnet_subnets,
-    local.node_subnet_count,
-    local.node_subnet_count + local.pod_subnet_count
+  subnet_name_to_id_map = zipmap(
+    concat(local.private_subnet_names, local.public_subnet_names, local.pod_subnet_names),
+    module.network.vnet_subnets
   )
 
-  public_subnet_id_list = slice(
-    module.network.vnet_subnets,
-    local.node_subnet_count + local.pod_subnet_count,
-    local.node_subnet_count + local.pod_subnet_count + local.public_subnet_count
-  )
+  private_subnet_id_list = [
+    for sn_name in local.private_subnet_names :
+    local.subnet_name_to_id_map[sn_name]
+  ]
 
-  private_subnet_id_list = slice(
-    module.network.vnet_subnets,
-    local.node_subnet_count + local.pod_subnet_count + local.public_subnet_count,
-    length(module.network.vnet_subnets)
-  )
+  public_subnet_id_list = [
+    for sn_name in local.public_subnet_names :
+    local.subnet_name_to_id_map[sn_name]
+  ]
+
+  pod_subnet_id_list = [
+    for sn_name in local.pod_subnet_names :
+    local.subnet_name_to_id_map[sn_name]
+  ]
+
+  default_nodepool_subnet_id = local.subnet_name_to_id_map[local.private_subnet_names[0]]
 
   # Automatically allocate subnets to node pools in a round-robin manner
   node_pools_with_subnets = {
     for idx, key in keys(var.node_pools) :
     key => merge(var.node_pools[key], {
-      subnet_id     = local.node_subnet_id_list[idx % length(local.node_subnet_id_list)],
+      subnet_id     = local.private_subnet_id_list[idx % length(local.private_subnet_id_list)],
       pod_subnet_id = local.pod_subnet_id_list[idx % length(local.pod_subnet_id_list)]
     })
   }
+
+  clusterrole_groups = {
+    for role in local.cluster_roles :
+    role => {
+      id = data.azuread_group.k8s_groups[role].object_id
+    }
+  }
+
   cluster_roles = [
     "aks-cluster-clusteradmin",
     "aks-cluster-clusteroperator",
-    "aks-cluster-clusterviewer"
+    "aks-cluster-clusterviewer",
+    "aks-cluster-namespaceadmin",
+    "aks-cluster-namespaceoperator",
+    "aks-cluster-namespaceviewer"
   ]
+
 }
