@@ -15,7 +15,6 @@ module "aks" {
   cluster_name                 = local.cluster_name
   kubernetes_version           = var.kubernetes_version
   orchestrator_version         = var.kubernetes_version
-  ebpf_data_plane              = var.ebpf_data_plane
   image_cleaner_enabled        = var.image_cleaner_enabled
   image_cleaner_interval_hours = var.image_cleaner_interval_hours
   automatic_channel_upgrade    = var.automatic_channel_upgrade
@@ -23,17 +22,25 @@ module "aks" {
   private_cluster_enabled      = var.private_cluster_enabled
 
   # Networking
-  net_profile_pod_cidr       = var.net_profile_pod_cidr
-  net_profile_service_cidr   = var.net_profile_service_cidr
-  net_profile_dns_service_ip = var.net_profile_dns_service_ip
-  network_ip_versions        = var.network_ip_versions
-  network_plugin_mode        = var.network_plugin_mode
-  network_plugin             = var.network_plugin
-  network_policy             = var.network_policy
-  network_contributor_role_assigned_subnet_ids = zipmap(
-    [for i in range(local.private_subnet_count) : "private-subnet-${i}"],
-    slice(module.network.vnet_subnets, local.public_subnet_count, local.public_subnet_count + local.private_subnet_count)
+  network_plugin_mode = var.network_plugin_mode
+  network_plugin      = var.network_plugin
+  network_policy      = var.network_policy
+network_contributor_role_assigned_subnet_ids = merge(
+  zipmap(
+    [for i in range(length(local.public_subnet_names)) : "public-subnet-${i}"],
+    local.public_subnet_id_list
+  ),
+  zipmap(
+    [for i in range(length(local.private_subnet_names)) : "private-subnet-${i}"],
+    local.private_subnet_id_list
+  ),
+  zipmap(
+    [for i in range(length(local.pod_subnet_names)) : "pod-subnet-${i}"],
+    local.pod_subnet_id_list
   )
+)
+
+
 
   # Default Node Pool
   enable_auto_scaling          = var.enable_auto_scaling

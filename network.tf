@@ -8,8 +8,8 @@ module "network" {
   resource_group_name = azurerm_resource_group.aks_rg.name
   vnet_name           = local.vnet_name
   address_spaces      = [var.vnet_cidr]
-  subnet_prefixes     = concat(local.public_subnet_cidrs, local.private_subnet_cidrs, local.pod_subnet_cidrs)
-  subnet_names        = concat(local.public_subnet_names, local.private_subnet_names, local.pod_subnet_names)
+  subnet_prefixes     = concat(local.pod_subnet_cidrs, local.private_subnet_cidrs, local.public_subnet_cidrs, )
+  subnet_names        = concat(local.pod_subnet_names,local.private_subnet_names,local.public_subnet_names,)
   tags                = var.default_tags
 }
 
@@ -27,7 +27,7 @@ resource "azurerm_nat_gateway" "nat" {
   location                = var.location
   resource_group_name     = azurerm_resource_group.aks_rg.name
   sku_name                = var.nat_gateway_sku_name
-  zones                   = var.availability_zones
+  zones                   = [var.nat_gateway_zone]
   idle_timeout_in_minutes = var.idle_timeout_in_minutes
 }
 

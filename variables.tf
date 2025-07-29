@@ -572,3 +572,44 @@ variable "auto_scaler_profile_skip_nodes_with_system_pods" {
   type        = bool
   default     = false
 }
+
+variable "auto_scaler_profile_balance_similar_node_groups" {
+  description = "Detect similar node groups and balance the number of nodes between them"
+  type        = bool
+  default     = false
+}
+
+variable "auto_scaler_profile_expander" {
+  description = "Auto-scaler profile expander setting. Possible values are least-waste, priority, most-pods, and random. Defaults to random."
+  type        = string
+  default     = "random"
+  validation {
+    condition     = contains(["least-waste", "priority", "most-pods", "random"], var.auto_scaler_profile_expander)
+    error_message = "Allowed values for auto_scaler_profile_expander are least-waste, priority, most-pods, and random."
+  }
+}
+
+variable "node_pools" {
+  description = "Map of node pools with configuration"
+  type = map(object({
+    name                = string
+    vm_size             = string
+    enable_auto_scaling = bool
+    min_count           = number
+    max_count           = number
+    node_taints         = list(string)
+    os_disk_size_gb     = number
+    max_pods            = number
+    mode                = string
+    priority            = string
+    os_type             = string
+    node_labels         = map(string)
+  }))
+  default = {}
+}
+
+variable "nat_gateway_zone" {
+  type        = string
+  default     = "1"
+  description = "The availability zone in which to deploy the NAT Gateway"
+}

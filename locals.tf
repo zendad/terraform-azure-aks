@@ -42,53 +42,58 @@ locals {
   }
 
   name_prefix                  = "${var.environment}-${local.azure_regions_shortname[var.location]}"
+  prefix                       = "aks"
   vnet_name                    = "vnet-${local.name_prefix}"
   cluster_name                 = "aks-cluster-${local.name_prefix}"
   nodepool_resource_group_name = "rg-nodepool-${local.name_prefix}"
 
-  # Private subnets (/22)
-  private_subnet_cidrs = [
+ # Pod subnets
+  pod_subnet_cidrs = [
     cidrsubnet(var.vnet_cidr, 6, 0)
   ]
 
-  # Pod subnets (/21)
-  pod_subnet_cidrs = [
-    cidrsubnet(var.vnet_cidr, 5, 1)
+  # Private subnets
+  private_subnet_cidrs = [
+    cidrsubnet(var.vnet_cidr, 6, 1)
   ]
 
-  # Public subnets (/24)
+  # Public subnets
   public_subnet_cidrs = [
-    cidrsubnet(var.vnet_cidr, 8, 100)
+    cidrsubnet(var.vnet_cidr, 6, 2)
   ]
 
-  public_subnet_names  = [for idx, cidr in local.public_subnet_cidrs : "snet-public-${local.name_prefix}-${idx + 1}"]
-  private_subnet_names = [for idx, cidr in local.private_subnet_cidrs : "snet-private-${local.name_prefix}-${idx + 1}"]
   pod_subnet_names     = [for idx, cidr in local.pod_subnet_cidrs : "snet-pod-${local.name_prefix}-${idx + 1}"]
+  private_subnet_names = [for idx, cidr in local.private_subnet_cidrs : "snet-private-${local.name_prefix}-${idx + 1}"]
+  public_subnet_names  = [for idx, cidr in local.public_subnet_cidrs : "snet-public-${local.name_prefix}-${idx + 1}"]
+
+
   # Count each type
   pod_subnet_count     = length(local.pod_subnet_names)
+    private_subnet_count = length(local.private_subnet_names)
   public_subnet_count  = length(local.public_subnet_names)
-  private_subnet_count = length(local.private_subnet_names)
+
 
   # Split the flat list of subnet IDs from the module into slices
   subnet_name_to_id_map = zipmap(
-    concat(local.private_subnet_names, local.public_subnet_names, local.pod_subnet_names),
+    concat(local.pod_subnet_names,local.private_subnet_names, local.public_subnet_names),
     module.network.vnet_subnets
   )
 
-  private_subnet_id_list = [
-    for sn_name in local.private_subnet_names :
-    local.subnet_name_to_id_map[sn_name]
-  ]
+ public_subnet_id_list = [
+  for sn_name in local.public_subnet_names :
+  local.subnet_name_to_id_map[sn_name]
+]
 
-  public_subnet_id_list = [
-    for sn_name in local.public_subnet_names :
-    local.subnet_name_to_id_map[sn_name]
-  ]
+private_subnet_id_list = [
+  for sn_name in local.private_subnet_names :
+  local.subnet_name_to_id_map[sn_name]
+]
 
-  pod_subnet_id_list = [
-    for sn_name in local.pod_subnet_names :
-    local.subnet_name_to_id_map[sn_name]
-  ]
+pod_subnet_id_list = [
+  for sn_name in local.pod_subnet_names :
+  local.subnet_name_to_id_map[sn_name]
+]
+
 
   default_nodepool_subnet_id = local.subnet_name_to_id_map[local.private_subnet_names[0]]
 
@@ -116,5 +121,5 @@ locals {
     "aks-cluster-namespaceoperator",
     "aks-cluster-namespaceviewer"
   ]
-
+  key_expiration_date = timeadd("${formatdate("YYYY-MM-DD", timestamp())}T00:00:00Z", var.key_expiration_offset)
 }

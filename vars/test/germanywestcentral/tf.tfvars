@@ -24,7 +24,7 @@ agents_labels = {
 }
 
 kubernetes_version                              = "1.32"
-vnet_cidr                                       = "10.0.0.0/16"
+vnet_cidr                                       = "172.15.0.0/16"
 availability_zones                              = ["1", "2", "3"]
 network_plugin                                  = "azure"
 network_policy                                  = "calico"
@@ -42,7 +42,7 @@ kms_key_vault_network_access       = "public"
 private_cluster_enabled            = false
 secret_rotation_enabled            = true
 secret_rotation_interval           = "3600m"
-key_vault_ip_rules                 = ["185.209.237.248"]
+key_vault_ip_rules                 = ["185.209.237.211"]
 
 
 node_pools = {
